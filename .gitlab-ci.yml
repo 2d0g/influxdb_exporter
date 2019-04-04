@@ -1,0 +1,33 @@
+image: docker:17.05
+variables:
+  HARBOR_URL: harbor.meitu-int.com
+  IMAGE: harbor.meitu-int.com/mtmonit/influxdb_exporter
+  TAG: v1.0-${CI_PIPELINE_ID}
+before_script:
+  - docker version
+  - docker login ${HARBOR_URL} -u ${HARBOR_USER} -p ${HARBOR_PASS}
+
+build:
+  stage: build
+  script:
+    - docker build -t ${IMAGE}:${TAG} . 
+
+push_auto:
+  stage: push
+  script:
+    - docker push ${IMAGE}:$TAG
+  only:
+    - develop
+    - master
+    - tags
+
+push_manual:
+  stage: push
+  script:
+    - docker push ${IMAGE}:$TAG
+  only:
+    - tags
+  when: manual
+stages:
+  - build
+  - push
