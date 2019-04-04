@@ -10,7 +10,7 @@ before_script:
 build:
   stage: build
   script:
-    - docker build -t ${IMAGE}:${TAG} . 
+    - docker build --no-cache -t ${IMAGE}:${TAG} . 
 
 push_auto:
   stage: push
