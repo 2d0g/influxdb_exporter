@@ -1,20 +1,12 @@
-FROM harbor.meitu-int.com/alpine/golang:1.10
+ARG ARCH="amd64"
+ARG OS="linux"
+FROM quay.io/prometheus/busybox-${OS}-${ARCH}:latest
+LABEL maintainer="The Prometheus Authors <prometheus-developers@googlegroups.com>"
 
-ARG GOPATH="/go"
+ARG ARCH="amd64"
+ARG OS="linux"
+COPY .build/${OS}-${ARCH}/influxdb_exporter /bin/influxdb_exporter
 
-RUN apk update && \
-    apk upgrade && \
-    apk --virtual build-deps add \
-      go>1.10 curl git gcc musl-dev make && \
-    apk add \
-      python py-pip bash && \
-    pip install --upgrade pip envtpl && \
-    go get -u github.com/2d0g/influxdb_exporter && \
-    cp $GOPATH/bin/influxdb_exporter /usr/local/bin && \
-    apk del build-deps && \
-    rm -rf /var/cache/apk/* $GOPATH/*
-
-EXPOSE 80
-
-CMD ["/usr/local/bin/influxdb_exporter", "--web.listen-address=:80", "--timestamps"]
-
+USER        nobody
+EXPOSE      80
+CMD ["/bin/influxdb_exporter", "--web.listen-address=:80", "--timestamps"]
